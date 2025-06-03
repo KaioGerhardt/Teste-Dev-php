@@ -1,0 +1,195 @@
+openapi: 3.0.0
+info:
+  title: API de Clientes
+  version: 1.0.0
+  description: API para cadastro, listagem, atualização e remoção de clientes, com validação de CPF, e-mail e endereço via CEP.
+
+servers:
+  - url: http://localhost:8080/api
+    description: Ambiente local
+
+paths:
+  /clientes:
+    get:
+      summary: Listar clientes
+      description: Retorna uma lista paginada de clientes com suporte a filtros.
+      parameters:
+        - in: query
+          name: nome
+          schema:
+            type: string
+        - in: query
+          name: cpf
+          schema:
+            type: string
+        - in: query
+          name: cep
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista de clientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Cliente'
+
+    post:
+      summary: Criar cliente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClienteInput'
+            example:
+              nome_completo: "Maria Souza"
+              cpf: "98765432100"
+              email: "maria.souza@example.com"
+              telefone: "(11)91234-5678"
+              cep: "01310200"
+      responses:
+        '201':
+          description: Cliente criado com sucesso
+        '422':
+          description: Erros de validação
+
+  /clientes/{id}:
+    get:
+      summary: Detalhar cliente
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cliente encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+        '404':
+          description: Cliente não encontrado
+
+    put:
+      summary: Atualizar cliente
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClienteInput'
+            example:
+              nome_completo: "Maria Souza Atualizada"
+              cpf: "98765432100"
+              email: "maria.souza@novaempresa.com"
+              telefone: "(11)99888-7777"
+              cep: "01310200"
+      responses:
+        '200':
+          description: Cliente atualizado com sucesso
+        '422':
+          description: Erros de validação
+
+    delete:
+      summary: Excluir cliente
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Cliente excluído com sucesso
+        '404':
+          description: Cliente não encontrado
+
+components:
+  schemas:
+    Cliente:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        nome_completo:
+          type: string
+          example: "João da Silva"
+        cpf:
+          type: string
+          example: "12345678900"
+        email:
+          type: string
+          example: "joao.silva@example.com"
+        telefone:
+          type: string
+          example: "(11)99999-8888"
+        cep:
+          type: string
+          example: "01001000"
+        logradouro:
+          type: string
+          example: "Praça da Sé"
+        bairro:
+          type: string
+          example: "Sé"
+        cidade:
+          type: string
+          example: "São Paulo"
+        estado:
+          type: string
+          example: "SP"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-06-03T14:55:21Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-06-03T14:55:21Z"
+
+    ClienteInput:
+      type: object
+      required:
+        - nome_completo
+        - cpf
+        - email
+        - cep
+      properties:
+        nome_completo:
+          type: string
+          example: "João da Silva"
+        cpf:
+          type: string
+          example: "12345678900"
+        email:
+          type: string
+          format: email
+          example: "joao@example.com"
+        telefone:
+          type: string
+          example: "(11)99999-9999"
+        cep:
+          type: string
+          example: "01001000"
